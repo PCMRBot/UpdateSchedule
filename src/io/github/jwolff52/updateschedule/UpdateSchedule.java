@@ -42,7 +42,6 @@ public class UpdateSchedule {
 					}
 					streams = getStreams(inputLine.substring(inputLine.indexOf("Friday"), inputLine.indexOf("Saturday")));
 					for(String s:streams) {
-						System.out.println(s);
 						s.indexOf("at");
 						Database.addStream("fri", s);
 					}
