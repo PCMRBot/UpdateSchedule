@@ -75,7 +75,7 @@ public class Database {
 			try {
 				stmt1 = conn.createStatement();
 				stmt1.closeOnCompletion();
-				stmt1.executeUpdate(String.format("CREATE TABLE %s.pcmrSchedule(day varchar(3), streamer varchar(25), game varchar(255), startTime varchar(10), endTime varchar(10))", DATABASE));
+				stmt1.executeUpdate(String.format("CREATE TABLE %s.pcmrSchedule(day INTEGER, streamer varchar(25), game varchar(255), startTime varchar(10), endTime varchar(10))", DATABASE));
 			} catch (SQLException ex) {
 				logger.log(Level.SEVERE, String.format("Unable to create table %sMods!",DATABASE), ex);
 			}
@@ -113,16 +113,38 @@ public class Database {
 	}
 	
 	public static void addStream(String day, String info) {
+		int d = 1;
+		switch(day.toLowerCase()) {
+		case "sun": 
+			break;
+		case "mon": 
+			d = 2;
+			break;
+		case "tue": 
+			d = 3;
+			break;
+		case "wed": 
+			d = 4;
+			break;
+		case "thu": 
+			d = 5;
+			break;
+		case "fri": 
+			d = 6;
+			break;
+		case "sat": 
+			d = 7;
+		}
 		String streamer = null;
 		try {
 			streamer = info.substring(0, info.indexOf(':'));
 		} catch (StringIndexOutOfBoundsException e) {
-			executeUpdate(String.format("INSERT INTO %s.pcmrSchedule VALUES(\'%s\',\'%s\',\'%s\',\'%s\',\'%s\')", DATABASE, day, info, null, null, null));
+			executeUpdate(String.format("INSERT INTO %s.pcmrSchedule VALUES(\'%d\',\'%s\',\'%s\',\'%s\',\'%s\')", DATABASE, d, info, null, null, null));
 			return;
 		}
 		String game = info.substring(info.indexOf(":") + 2, info.lastIndexOf("at") - 1);
 		String start = info.substring(info.lastIndexOf("at") + 3, info.lastIndexOf('-'));
 		String end = info.substring(info.lastIndexOf('-') + 1);
-		executeUpdate(String.format("INSERT INTO %s.pcmrSchedule VALUES(\'%s\',\'%s\',\'%s\',\'%s\',\'%s\')", DATABASE, day, streamer, game, start, end));
+		executeUpdate(String.format("INSERT INTO %s.pcmrSchedule VALUES(\'%d\',\'%s\',\'%s\',\'%s\',\'%s\')", DATABASE, d, streamer, game, start, end));
 	}
 }

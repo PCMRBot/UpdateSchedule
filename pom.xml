@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>UpdateSchedule</groupId>
   <artifactId>UpdateSchedule</artifactId>
-  <version>1.0</version>
+  <version>1.0.1</version>
   <name>Update Schedule</name>
   <build>
     <sourceDirectory>src</sourceDirectory>
