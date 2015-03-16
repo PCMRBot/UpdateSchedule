@@ -135,6 +135,7 @@ public class Database {
 		case "sat": 
 			d = 7;
 		}
+		System.out.println(info);
 		String streamer = null;
 		try {
 			streamer = info.substring(0, info.indexOf(':'));

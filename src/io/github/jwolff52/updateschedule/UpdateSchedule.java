@@ -27,42 +27,64 @@ import java.util.ArrayList;
 
 public class UpdateSchedule {
 
+	private static ArrayList<String> streams;
+	
 	public static void main(String[] args) {
 		Database.initDBConnection(args[0]);
 		Database.getTables();
 		Database.resetTable();
 		try {
-			URL url = new URL("https://docs.google.com/spreadsheets/d/1ymTNFmmE5P39-ifypM8u3tfEzcA60OSbns3PEdSJ980/pubhtml?gid=427413677&single=true");
+			URL url = new URL("https://docs.google.com/spreadsheets/d/1ymTNFmmE5P39-ifypM8u3tfEzcA60OSbns3PEdSJ980/pubhtml?gid=955381834&single=true");
 			BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
 			String inputLine;
 			while ((inputLine = in.readLine()) != null) {
-				if(inputLine.contains("</script></head>")) {
-					ArrayList<String> streams = getStreams(inputLine.substring(inputLine.indexOf("Sunday"), inputLine.indexOf("Monday")));
-					for(String s:streams) {
-						Database.addStream("sun", s);
+				if(inputLine.contains("</script></head><body")) {
+					break;
+				}
+			}
+			String[] tokenized=inputLine.split("[<>]");
+			boolean countMonday = true;
+			int timezone = 0;
+			for(int i = 0;i<tokenized.length;i++) {
+				if(tokenized[i].equalsIgnoreCase("Sunday")) {
+					timezone++;
+					countMonday = false;
+				} else if(tokenized[i].equalsIgnoreCase("Monday")) {
+					if(countMonday) {
+						timezone++;
+					} else {
+						countMonday = true;
 					}
-					streams = getStreams(inputLine.substring(inputLine.indexOf("Monday"), inputLine.indexOf("Tuesday")));
+				}
+				if(timezone == 3) {
+					try {
+						i = getStreams(tokenized, i, "Monday");
+						for(String s:streams) {
+							Database.addStream("sun", s);
+						}
+					} catch (StringIndexOutOfBoundsException e) {}
+					i = getStreams(tokenized, i, "Tuesday");
 					for(String s:streams) {
 						Database.addStream("mon", s);
 					}
-					streams = getStreams(inputLine.substring(inputLine.indexOf("Tuesday"), inputLine.indexOf("Wednesday")));
+					i = getStreams(tokenized, i, "Wednesday");
 					for(String s:streams) {
 						Database.addStream("tue", s);
 					}
-					streams = getStreams(inputLine.substring(inputLine.indexOf("Wednesday"), inputLine.indexOf("Thursday")));
+					i = getStreams(tokenized, i, "Thursday");
 					for(String s:streams) {
 						Database.addStream("wed", s);
 					}
-					streams = getStreams(inputLine.substring(inputLine.indexOf("Thursday"), inputLine.indexOf("Friday")));
+					i = getStreams(tokenized, i, "Friday");
 					for(String s:streams) {
 						Database.addStream("thu", s);
 					}
-					streams = getStreams(inputLine.substring(inputLine.indexOf("Friday"), inputLine.indexOf("Saturday")));
+					i = getStreams(tokenized, i, "Saturday");
 					for(String s:streams) {
 						s.indexOf("at");
 						Database.addStream("fri", s);
 					}
-					streams = getStreams(inputLine.substring(inputLine.indexOf("Saturday"), inputLine.indexOf("<br><br><br>")));
+					i = getStreams(tokenized, i, "Times displayed");
 					for(String s:streams) {
 						Database.addStream("sat", s);
 					}
@@ -74,18 +96,23 @@ public class UpdateSchedule {
 		}
 	}
 
-	private static ArrayList<String> getStreams(String day) {
-		ArrayList<String> streams = new ArrayList<>();
-		day = day.substring(day.indexOf("<br>") + 41);
-		while(day.contains("<br><br>")) {
-			if(day.contains("<br>at")) {
-				streams.add(day.substring(0, day.indexOf("<br>at")) + day.substring(day.indexOf("<br>at") + 4, day.indexOf("<br><br>")));
-				day = day.substring(day.indexOf("<br><br>") + 8);
-				continue;
+	private static int getStreams(String[] tokenized, int start, String endKeyWord) {
+		streams = new ArrayList<>();
+		for(; start < tokenized.length;start++) {
+			if(!tokenized[start].toLowerCase().contains(endKeyWord.toLowerCase())) {
+				if(tokenized[start].contains(":")) {
+					if(tokenized[start + 2].startsWith("at")) {
+						streams.add(tokenized[start] + tokenized[start + 2]);
+						start+=2;
+					} else {
+						streams.add(tokenized[start] + tokenized[start + 4]);
+						start+=4;
+					}
+				}
+			} else {
+				break;
 			}
-			streams.add(day.substring(0, day.indexOf("<br><br>")));
-			day = day.substring(day.indexOf("<br><br>") + 8);
 		}
-		return streams;
+		return start;
 	}
 }
