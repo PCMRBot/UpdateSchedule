@@ -75,7 +75,7 @@ public class Database {
 			try {
 				stmt1 = conn.createStatement();
 				stmt1.closeOnCompletion();
-				stmt1.executeUpdate(String.format("CREATE TABLE %s.pcmrSchedule(day INTEGER, streamer varchar(25), game varchar(255), startTime varchar(10), endTime varchar(10))", DATABASE));
+				stmt1.executeUpdate(String.format("CREATE TABLE %s.pcmrSchedule(day INTEGER, streamer varchar(50), game varchar(255), startTime varchar(10), endTime varchar(10))", DATABASE));
 			} catch (SQLException ex) {
 				logger.log(Level.SEVERE, String.format("Unable to create table %sMods!",DATABASE), ex);
 			}
@@ -109,7 +109,7 @@ public class Database {
 	
 	public static void resetTable() {
 		executeUpdate(String.format("DROP TABLE %s.pcmrSchedule", DATABASE));
-		executeUpdate(String.format("CREATE TABLE %s.pcmrSchedule(day varchar(3), streamer varchar(25), game varchar(255), startTime varchar(10), endTime varchar(10))", DATABASE));
+		executeUpdate(String.format("CREATE TABLE %s.pcmrSchedule(day varchar(3), streamer varchar(50), game varchar(255), startTime varchar(10), endTime varchar(10))", DATABASE));
 	}
 	
 	public static void addStream(String day, String info) {
